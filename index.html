@@ -1,0 +1,24 @@
+<select id="channelSelect">
+  <option value="rmtv">REAL MADRID TV</option>
+  <option value="cnnindo">CNN INDONESIA</option>
+  <option value="beritasatu">BERITA SATU</option>
+  <option value="rintv">RINJANI TV</option>
+</select>
+
+<video id="video" controls autoplay></video>
+
+<script>
+const video = document.getElementById("video");
+const select = document.getElementById("channelSelect");
+
+function loadChannel(ch) {
+  video.src = "http://ariadisasaki.github.io/coba/watch/" + ch;
+}
+
+select.addEventListener("change", () => {
+  loadChannel(select.value);
+});
+
+// load default
+loadChannel(select.value);
+</script>
