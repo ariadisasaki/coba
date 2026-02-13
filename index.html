@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANTO TV</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Poppins;
+  background:#0f172a;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+header{
+  padding:15px;
+  background:#111827;
+  text-align:center;
+}
+
+.channel-list{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  background:#1f2937;
+  overflow-x:auto;
+}
+
+button{
+  padding:8px 14px;
+  border:none;
+  border-radius:20px;
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+
+.player{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:10px;
+}
+
+video{
+  width:100%;
+  max-width:1000px;
+  aspect-ratio:16/9;
+  background:black;
+  border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>MANTO TV</h2>
+</header>
+
+<div class="channel-list" id="channels"></div>
+
+<div class="player">
+<video id="video" controls autoplay></video>
+</div>
+
+<script>
+
+// ===============================
+// 🔵 EDIT BOLEH (URL WORKER)
+// ===============================
+const WORKER = "https://mantosecret.ariadishut.workers.dev";
+
+const video = document.getElementById("video");
+
+async function loadChannels(){
+  const res = await fetch(WORKER + "/channels");
+  const list = await res.json();
+
+  const container = document.getElementById("channels");
+  list.forEach(ch=>{
+    const btn = document.createElement("button");
+    btn.innerText = ch;
+    btn.onclick = ()=>playChannel(ch);
+    container.appendChild(btn);
+  });
+}
+
+async function playChannel(ch){
+  const url = WORKER + "/play/" + ch;
+
+  const res = await fetch(url);
+  const type = res.headers.get("X-Stream-Type");
+
+  if(type === "dash"){
+    const player = dashjs.MediaPlayer().create();
+    player.initialize(video, url, true);
+  } else {
+    if(Hls.isSupported()){
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+    } else {
+      video.src = url;
+    }
+  }
+}
+
+loadChannels();
+</script>
+
+</body>
+</html>
